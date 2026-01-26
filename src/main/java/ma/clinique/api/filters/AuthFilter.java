@@ -38,8 +38,18 @@ public class AuthFilter implements ContainerRequestFilter {
     }
 
     var session = sessionOpt.get();
-    // Astuce simple: on “passe” userId via header interne (sans framework)
-    ctx.getHeaders().putSingle("X-User-Id", String.valueOf(session.getUserId()));
-    ctx.getHeaders().putSingle("X-User-Role", session.getRole().name());
+    var user = AppContext.users().findById(session.getUserId()).orElse(null);
+    if (user == null) {
+      ctx.abortWith(jakarta.ws.rs.core.Response.status(401).entity("Invalid token user").build());
+      return;
+    }
+
+    var principal = new ma.clinique.api.security.AuthPrincipal(
+        user.getId(), user.getUsername(), session.getRole()
+    );
+
+    boolean secure = ctx.getUriInfo().getRequestUri().getScheme().equals("https");
+    ctx.setSecurityContext(new ma.clinique.api.security.SecurityContextImpl(principal, secure));
+
   }
 }

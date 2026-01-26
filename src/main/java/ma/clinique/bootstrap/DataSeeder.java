@@ -11,5 +11,7 @@ public final class DataSeeder {
   public static void seed(UserRepository users) {
     // admin/admin
     users.save(new User(0, "admin", PasswordHasher.sha256Base64("admin"), Role.ADMIN));
+    
+    users.save(new User(0, "doc", PasswordHasher.sha256Base64("doc"), Role.DOCTOR));
   }
 }

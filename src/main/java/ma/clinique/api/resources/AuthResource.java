@@ -8,12 +8,12 @@ import ma.clinique.api.dto.response.TokenResponse;
 import ma.clinique.config.AppContext;
 
 @Path("/auth")
-@Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class AuthResource {
 
   @POST
   @Path("/login")
+  @Consumes(MediaType.APPLICATION_JSON)
   public TokenResponse login(LoginRequest req) {
     if (req == null || req.username == null || req.password == null) {
       throw new BadRequestException("username/password required");

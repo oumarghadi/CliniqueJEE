@@ -1,8 +1,10 @@
 package ma.clinique.service;
 
 import java.security.SecureRandom;
+
 import java.util.Base64;
 
+import jakarta.ws.rs.NotAuthorizedException;
 import ma.clinique.api.security.Session;
 import ma.clinique.model.User;
 import ma.clinique.repo.interfaces.SessionRepository;
@@ -24,11 +26,11 @@ public class AuthService {
   public Session login(String username, String passwordRaw) {
     User u = users.findByUsername(username)
         .filter(User::isActive)
-        .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+        .orElseThrow(() -> new NotAuthorizedException("Invalid credentials"));
 
     String hash = PasswordHasher.sha256Base64(passwordRaw);
     if (!hash.equals(u.getPasswordHash())) {
-      throw new RuntimeException("Invalid credentials");
+    	  throw new NotAuthorizedException("Invalid credentials");
     }
 
     String token = generateToken();
@@ -44,5 +46,6 @@ public class AuthService {
     byte[] b = new byte[32];
     new SecureRandom().nextBytes(b);
     return Base64.getUrlEncoder().withoutPadding().encodeToString(b);
+    
   }
 }

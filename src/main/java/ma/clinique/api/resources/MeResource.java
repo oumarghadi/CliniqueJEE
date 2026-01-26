@@ -1,25 +1,22 @@
 package ma.clinique.api.resources;
 
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.*;
 
-import ma.clinique.config.AppContext;
+import ma.clinique.api.security.AuthPrincipal;
 
 @Path("/me")
 @Produces(MediaType.APPLICATION_JSON)
 public class MeResource {
 
   @GET
-  public Object me(@HeaderParam("X-User-Id") String userIdHeader) {
-    long userId = Long.parseLong(userIdHeader);
-    var u = AppContext.users().findById(userId).orElseThrow(NotFoundException::new);
+  public Object me(@Context SecurityContext sc) {
+    AuthPrincipal p = (AuthPrincipal) sc.getUserPrincipal();
 
-    // réponse simple (sans exposer passwordHash)
     return new Object() {
-      public final long id = u.getId();
-      public final String username = u.getUsername();
-      public final String role = u.getRole().name();
-      public final boolean active = u.isActive();
+      public final long id = p.getUserId();
+      public final String username = p.getName();
+      public final String role = p.getRole().name();
     };
   }
 }
