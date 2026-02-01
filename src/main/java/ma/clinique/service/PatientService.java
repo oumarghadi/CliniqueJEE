@@ -1,61 +1,58 @@
 package ma.clinique.service;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
-
 import ma.clinique.model.Patient;
 import ma.clinique.repo.interfaces.PatientRepository;
 
 public class PatientService {
-  private final PatientRepository patients;
 
-  public PatientService(PatientRepository patients) {
-    this.patients = patients;
+  private final PatientRepository repo;
+
+  public PatientService(PatientRepository repo) {
+    this.repo = repo;
   }
 
   public Patient create(String firstName, String lastName, String phone, String birthDate) {
-    validateCreate(firstName, lastName, birthDate);
-    Patient p = new Patient(0, firstName.trim(), lastName.trim(), phone, birthDate);
-    return patients.save(p);
-  }
+    if (firstName == null || firstName.isBlank()) throw new BadRequestException("firstName required");
+    if (lastName == null || lastName.isBlank()) throw new BadRequestException("lastName required");
+    if (phone == null || phone.isBlank()) throw new BadRequestException("phone required");
 
-  public Patient update(long id, String firstName, String lastName, String phone, String birthDate, Boolean active) {
-    Patient p = patients.findById(id).orElseThrow(() -> new NotFoundException("Patient not found"));
-    if (firstName != null) p.setFirstName(firstName.trim());
-    if (lastName != null) p.setLastName(lastName.trim());
-    if (phone != null) p.setPhone(phone);
-    if (birthDate != null) {
-      parseDate(birthDate);
-      p.setBirthDate(birthDate);
-    }
-    if (active != null) p.setActive(active);
-    return patients.save(p);
+    Patient p = new Patient();
+    p.setFirstName(firstName);
+    p.setLastName(lastName);
+    p.setPhone(phone);
+    p.setBirthDate(birthDate); // peut être null
+    p.setActive(true);
+
+    return repo.save(p);
   }
 
   public Patient get(long id) {
-    return patients.findById(id).orElseThrow(() -> new NotFoundException("Patient not found"));
+    return repo.findById(id).orElseThrow(() -> new NotFoundException("Patient not found"));
   }
 
   public List<Patient> list() {
-    return patients.findAll();
+    return repo.findAll();
+  }
+
+  public Patient update(long id, String firstName, String lastName, String phone, String birthDate, Boolean active) {
+    Patient p = get(id);
+
+    // on met à jour seulement si ce n'est pas null
+    if (firstName != null) p.setFirstName(firstName);
+    if (lastName != null) p.setLastName(lastName);
+    if (phone != null) p.setPhone(phone);
+    if (birthDate != null) p.setBirthDate(birthDate);
+    if (active != null) p.setActive(active.booleanValue());
+
+    return repo.save(p);
   }
 
   public void delete(long id) {
-    patients.delete(id);
-  }
-
-  private void validateCreate(String firstName, String lastName, String birthDate) {
-    if (firstName == null || firstName.isBlank()) throw new BadRequestException("firstName required");
-    if (lastName == null || lastName.isBlank()) throw new BadRequestException("lastName required");
-    if (birthDate == null || birthDate.isBlank()) throw new BadRequestException("birthDate required");
-    parseDate(birthDate);
-  }
-
-  private void parseDate(String s) {
-    try { LocalDate.parse(s); }
-    catch (Exception e) { throw new BadRequestException("birthDate must be YYYY-MM-DD"); }
+    boolean ok = repo.delete(id);
+    if (!ok) throw new NotFoundException("Patient not found");
   }
 }

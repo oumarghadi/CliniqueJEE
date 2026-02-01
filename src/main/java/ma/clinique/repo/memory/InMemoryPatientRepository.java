@@ -1,8 +1,6 @@
 package ma.clinique.repo.memory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -10,7 +8,8 @@ import ma.clinique.model.Patient;
 import ma.clinique.repo.interfaces.PatientRepository;
 
 public class InMemoryPatientRepository implements PatientRepository {
-  private final ConcurrentHashMap<Long, Patient> store = new ConcurrentHashMap<>();
+
+  private final Map<Long, Patient> store = new ConcurrentHashMap<>();
   private final AtomicLong seq = new AtomicLong(0);
 
   @Override
@@ -31,7 +30,7 @@ public class InMemoryPatientRepository implements PatientRepository {
   }
 
   @Override
-  public void delete(long id) {
-    store.remove(id);
+  public boolean delete(long id) {
+    return store.remove(id) != null;
   }
 }

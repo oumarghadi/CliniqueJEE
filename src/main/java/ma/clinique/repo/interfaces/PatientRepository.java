@@ -8,5 +8,5 @@ public interface PatientRepository {
   Patient save(Patient p);
   Optional<Patient> findById(long id);
   List<Patient> findAll();
-  void delete(long id);
+  boolean delete(long id);
 }
