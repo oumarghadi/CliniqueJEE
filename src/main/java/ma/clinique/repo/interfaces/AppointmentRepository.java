@@ -8,6 +8,6 @@ public interface AppointmentRepository {
   Appointment save(Appointment a);
   Optional<Appointment> findById(long id);
   List<Appointment> findAll();
-  List<Appointment> findByDoctorId(long doctorId);
+  List<Appointment> findByDoctorUserId(long doctorUserId);
   boolean delete(long id);
 }

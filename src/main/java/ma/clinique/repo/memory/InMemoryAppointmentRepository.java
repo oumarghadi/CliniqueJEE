@@ -1,8 +1,6 @@
 package ma.clinique.repo.memory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -12,7 +10,7 @@ import ma.clinique.repo.interfaces.AppointmentRepository;
 
 public class InMemoryAppointmentRepository implements AppointmentRepository {
 
-  private final ConcurrentHashMap<Long, Appointment> store = new ConcurrentHashMap<>();
+  private final Map<Long, Appointment> store = new ConcurrentHashMap<>();
   private final AtomicLong seq = new AtomicLong(0);
 
   @Override
@@ -33,9 +31,9 @@ public class InMemoryAppointmentRepository implements AppointmentRepository {
   }
 
   @Override
-  public List<Appointment> findByDoctorId(long doctorId) {
+  public List<Appointment> findByDoctorUserId(long doctorUserId) {
     return store.values().stream()
-        .filter(a -> a.getDoctorId() == doctorId)
+        .filter(x -> x.getDoctorId() == doctorUserId)
         .collect(Collectors.toList());
   }
 

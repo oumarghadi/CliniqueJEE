@@ -6,20 +6,9 @@ public class Appointment {
   private long id;
   private long patientId;
   private long doctorId;
-  private String startAt; // "YYYY-MM-DDTHH:mm"
+  private String startAt; // ISO string ex: 2026-02-01T10:00
   private String reason;
   private AppointmentStatus status = AppointmentStatus.PLANNED;
-
-  public Appointment() {}
-
-  public Appointment(long id, long patientId, long doctorId, String startAt, String reason) {
-    this.id = id;
-    this.patientId = patientId;
-    this.doctorId = doctorId;
-    this.startAt = startAt;
-    this.reason = reason;
-    this.status = AppointmentStatus.PLANNED;
-  }
 
   public long getId() { return id; }
   public void setId(long id) { this.id = id; }

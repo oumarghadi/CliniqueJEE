@@ -16,17 +16,15 @@ public class PatientService {
   }
 
   public Patient create(String firstName, String lastName, String phone, String birthDate) {
-    if (firstName == null || firstName.isBlank()) throw new BadRequestException("firstName required");
-    if (lastName == null || lastName.isBlank()) throw new BadRequestException("lastName required");
-    if (phone == null || phone.isBlank()) throw new BadRequestException("phone required");
-
+    if (firstName == null || lastName == null || phone == null) {
+      throw new BadRequestException("firstName/lastName/phone required");
+    }
     Patient p = new Patient();
     p.setFirstName(firstName);
     p.setLastName(lastName);
     p.setPhone(phone);
-    p.setBirthDate(birthDate); // peut être null
+    p.setBirthDate(birthDate); // peut être null si tu veux l’autoriser
     p.setActive(true);
-
     return repo.save(p);
   }
 
@@ -41,12 +39,12 @@ public class PatientService {
   public Patient update(long id, String firstName, String lastName, String phone, String birthDate, Boolean active) {
     Patient p = get(id);
 
-    // on met à jour seulement si ce n'est pas null
     if (firstName != null) p.setFirstName(firstName);
     if (lastName != null) p.setLastName(lastName);
     if (phone != null) p.setPhone(phone);
+
     if (birthDate != null) p.setBirthDate(birthDate);
-    if (active != null) p.setActive(active.booleanValue());
+    if (active != null) p.setActive(active);
 
     return repo.save(p);
   }
