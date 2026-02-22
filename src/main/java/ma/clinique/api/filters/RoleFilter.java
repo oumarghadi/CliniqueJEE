@@ -2,36 +2,37 @@ package ma.clinique.api.filters;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import jakarta.annotation.Priority;
 import jakarta.ws.rs.ForbiddenException;
-import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.core.SecurityContext;
-
 import ma.clinique.api.security.AuthPrincipal;
 import ma.clinique.model.enums.Role;
 
-@Priority(Priorities.AUTHORIZATION)
+@Priority(Priorities.AUTHORIZATION) // après AuthFilter
 public class RoleFilter implements ContainerRequestFilter {
 
-  private final Role[] allowed;
+  private final Set<Role> allowed;
 
-  public RoleFilter(Role[] allowed) {
-    this.allowed = allowed;
+  public RoleFilter(Role[] roles) {
+    this.allowed = new HashSet<>(Arrays.asList(roles));
   }
 
   @Override
-  public void filter(ContainerRequestContext ctx) throws IOException {
-    SecurityContext sc = ctx.getSecurityContext();
+  public void filter(ContainerRequestContext requestContext) throws IOException {
+    SecurityContext sc = requestContext.getSecurityContext();
     if (sc == null || sc.getUserPrincipal() == null) {
-      throw new NotAuthorizedException("Bearer token required");
+      throw new ForbiddenException("Forbidden");
     }
 
     AuthPrincipal p = (AuthPrincipal) sc.getUserPrincipal();
-    boolean ok = Arrays.stream(allowed).anyMatch(r -> r == p.getRole());
-    if (!ok) throw new ForbiddenException("Forbidden");
+    if (!allowed.contains(p.getRole())) {
+      throw new ForbiddenException("Forbidden");
+    }
   }
 }
